@@ -24,19 +24,19 @@ resource "helm_release" "traefik" {
 
 resource "kubernetes_manifest" "traefik_default_cert" {
   manifest = {
-    "apiVersion" = "cert-manager.io/v1"
-    "kind"       = "Certificate"
-    "metadata" = {
-      "name"      = "traefik-default-cert"
-      "namespace" = kubernetes_namespace.agnes-system.metadata[0].name
+    apiVersion = "cert-manager.io/v1"
+    kind       = "Certificate"
+    metadata = {
+      name      = "traefik-default-cert"
+      namespace = kubernetes_namespace.agnes-system.metadata[0].name
     }
-    "spec" = {
-      "secretName" = "traefik-default-cert"
-      "issuerRef" = {
-        "name" = "letsencrypt-issuer"
-        "kind" = "ClusterIssuer"
+    spec = {
+      secretName = "traefik-default-cert"
+      issuerRef = {
+        name = local.main-cert-issuer
+        kind = "ClusterIssuer"
       }
-      "dnsNames" = ["*.jitarth.com"]
+      dnsNames = ["*.jitarth.com"]
     }
   }
 }
@@ -115,7 +115,7 @@ resource "kubernetes_manifest" "letsencrypt-issuer" {
     apiVersion = "cert-manager.io/v1"
     kind       = "ClusterIssuer"
     metadata = {
-      name = "letsencrypt-issuer"
+      name = local.main-cert-issuer
     }
     spec = {
       acme = {
