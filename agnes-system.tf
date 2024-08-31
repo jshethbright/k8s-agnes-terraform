@@ -22,6 +22,25 @@ resource "helm_release" "traefik" {
 
 }
 
+resource "kubernetes_manifest" "traefik_default_cert" {
+  manifest = {
+    "apiVersion" = "cert-manager.io/v1"
+    "kind"       = "Certificate"
+    "metadata" = {
+      "name"      = "traefik-default-cert"
+      "namespace" = kubernetes_namespace.agnes-system.metadata[0].name
+    }
+    "spec" = {
+      "secretName" = "traefik-default-cert"
+      "issuerRef" = {
+        "name" = "letsencrypt-issuer"
+        "kind" = "ClusterIssuer"
+      }
+      "dnsNames" = ["*.jitarth.com"]
+    }
+  }
+}
+
 # cert manager
 resource "helm_release" "cert-manager" {
   name       = "cert-manager"
@@ -120,3 +139,36 @@ resource "kubernetes_manifest" "letsencrypt-issuer" {
     }
   }
 }
+
+# intel gpu plugin
+resource "helm_release" "nfd" {
+  name       = "nfd"
+  repository = "https://kubernetes-sigs.github.io/node-feature-discovery/charts"
+  chart      = "node-feature-discovery"
+
+  namespace  = kubernetes_namespace.agnes-system.metadata[0].name
+  depends_on = [kubernetes_namespace.agnes-system]
+}
+
+
+resource "helm_release" "intel-device-plugins-operator" {
+  name       = "intel-device-plugins-operator"
+  repository = "https://intel.github.io/helm-charts/"
+  chart      = "intel-device-plugins-operator"
+
+  namespace  = kubernetes_namespace.agnes-system.metadata[0].name
+  depends_on = [kubernetes_namespace.agnes-system, helm_release.nfd]
+}
+
+
+resource "helm_release" "intel-gpu-plugin" {
+  name       = "intel-gpu-plugin"
+  repository = "https://intel.github.io/helm-charts/"
+  chart      = "intel-device-plugins-gpu"
+
+  namespace  = kubernetes_namespace.agnes-system.metadata[0].name
+  depends_on = [kubernetes_namespace.agnes-system, helm_release.nfd, helm_release.intel-device-plugins-operator]
+}
+
+
+

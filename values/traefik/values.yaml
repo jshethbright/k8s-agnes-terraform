@@ -63,7 +63,11 @@ deployment:
   #     - name: dsdsocket
   #       mountPath: /socket
   # -- Additional volumes available for use with initContainers and additionalContainers
-  additionalVolumes: []
+  # additionalVolumes:
+  #   - name: acme
+  #     persistentVolumeClaim:
+  #       claimName: acme-pvc  # Ensure you have a PVC named acme-pvc
+
   # - name: dsdsocket
   #   hostPath:
   #     path: /var/run/statsd-exporter
@@ -325,10 +329,9 @@ volumes: []
 #   type: configMap
 
 # -- Additional volumeMounts to add to the Traefik container
-additionalVolumeMounts: []
-# -- For instance when using a logshipper for access logs
-# - name: traefik-logs
-#   mountPath: /var/log/traefik
+# additionalVolumeMounts: 
+#   - mountPath: /data
+#     name: acme
 
 logs:
   general:
@@ -564,7 +567,11 @@ globalArguments:
 # -- Additional arguments to be passed at Traefik's binary
 # See [CLI Reference](https://docs.traefik.io/reference/static-configuration/cli/)
 # Use curly braces to pass values: `helm install --set="additionalArguments={--providers.kubernetesingress.ingressclass=traefik-internal,--log.level=DEBUG}"`
-additionalArguments: []
+# additionalArguments:
+#   - "--certificatesresolvers.default.acme.tlschallenge=true"
+#   - "--certificatesresolvers.default.acme.email=jitarthsheth@gmail.com" 
+#   - "--certificatesresolvers.default.acme.storage=/data/acme.json"
+#   - "--entrypoints.websecure.http.tls.certresolver=default"
 #  - "--providers.kubernetesingress.ingressclass=traefik-internal"
 #  - "--log.level=DEBUG"
 
@@ -754,7 +761,11 @@ ports:
 tlsOptions: {}
 
 # -- TLS Store are created as [TLSStore CRDs](https://doc.traefik.io/traefik/https/tls/#default-certificate). This is useful if you want to set a default certificate. See EXAMPLE.md for details.
-tlsStore: {}
+tlsStore:
+  default:
+    defaultCertificate:
+      secretName: traefik-default-cert
+
 
 service:
   enabled: true
