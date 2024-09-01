@@ -171,4 +171,39 @@ resource "helm_release" "intel-gpu-plugin" {
 }
 
 
+#ubuntu deployment
+resource "kubernetes_deployment" "ubuntu-debug" {
+  metadata {
+    name      = "ubuntu-debug"
+    namespace = kubernetes_namespace.agnes-system.metadata[0].name
+  }
+  spec {
+    replicas = 1
+    selector {
+      match_labels = {
+        app = "ubuntu"
+      }
+    }
+    template {
+      metadata {
+        labels = {
+          app = "ubuntu"
+        }
+      }
+      spec {
+        container {
+          name    = "ubuntu"
+          image   = "ubuntu:latest"
+          command = ["/bin/bash", "-c", "--"]
+          args    = ["while true; do sleep 30; done;"]
+          security_context {
+            privileged = true
+          }
+        }
+      }
+    }
+  }
+  depends_on = [kubernetes_namespace.agnes-system, helm_release.nfd, helm_release.intel-device-plugins-operator]
 
+
+}
