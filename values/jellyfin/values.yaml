@@ -10,12 +10,21 @@ persistence:
     enabled: true
     mountPath: "/config/transcodes"
     type: "emptyDir"
+  media:
+    enabled: true
+    type: pvc
+    mountPath: /storage
+    dataSource:
+      kind: "PersistentVolumeClaim"
+      name: main-storage
+    existingClaim: main-storage
 resources:
   limits:
     cpu: 4000m
     memory: 4Gi
 workload:
   main:
+    replicas: 1
     podSpec:
       containers:
         main:
@@ -28,7 +37,6 @@ ingress:
     enabled: true
     primary: true
     required: false
-    expandObjectName: false
     ingressClassName: traefik
     targetSelector:
       main: main
@@ -43,10 +51,3 @@ ingress:
         certificateIssuer: letsencrypt-issuer
       traefik:
         enabled: false
-persistence:
-  hostpath-vol:
-    enabled: true
-    type: hostPath
-    mountPath: /storage
-    hostPath: /var/mnt/mainpool/MainMedia
-    hostPathType: DirectoryOrCreate

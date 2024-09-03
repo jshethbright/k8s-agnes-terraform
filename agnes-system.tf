@@ -96,6 +96,7 @@ resource "kubernetes_manifest" "metallb-advertisement" {
       interfaces     = ["eno2"]
     }
   }
+  depends_on = [helm_release.metallb]
 }
 
 # letsencrypt
@@ -170,40 +171,71 @@ resource "helm_release" "intel-gpu-plugin" {
   depends_on = [kubernetes_namespace.agnes-system, helm_release.nfd, helm_release.intel-device-plugins-operator]
 }
 
+#rook-ceph
+# resource "helm_release" "rook-ceph-operator" {
+#   name       = "rook-ceph"
+#   repository = local.rook-repo
+#   chart      = "rook-ceph"
 
-#ubuntu deployment
-resource "kubernetes_deployment" "ubuntu-debug" {
-  metadata {
-    name      = "ubuntu-debug"
-    namespace = kubernetes_namespace.agnes-system.metadata[0].name
-  }
-  spec {
-    replicas = 1
-    selector {
-      match_labels = {
-        app = "ubuntu"
-      }
-    }
-    template {
-      metadata {
-        labels = {
-          app = "ubuntu"
-        }
-      }
-      spec {
-        container {
-          name    = "ubuntu"
-          image   = "ubuntu:latest"
-          command = ["/bin/bash", "-c", "--"]
-          args    = ["while true; do sleep 30; done;"]
-          security_context {
-            privileged = true
-          }
-        }
-      }
-    }
-  }
-  depends_on = [kubernetes_namespace.agnes-system, helm_release.nfd, helm_release.intel-device-plugins-operator]
+#   set {
+#     name  = "enableDiscoveryDaemon"
+#     value = true
+#   }
 
+#   namespace  = kubernetes_namespace.agnes-system.metadata[0].name
+#   depends_on = [kubernetes_namespace.agnes-system]
+
+# }
+
+# resource "helm_release" "rook-ceph-cluster" {
+#   name       = "rook-ceph-cluster"
+#   repository = local.rook-repo
+#   chart      = "rook-ceph-cluster"
+
+#   namespace  = kubernetes_namespace.agnes-system.metadata[0].name
+#   depends_on = [kubernetes_namespace.agnes-system, helm_release.rook-ceph-operator]
+#   values     = ["${file("./values/rook-ceph-cluster/values.yaml")}"]
+# }
+
+# longhorn
+# resource "helm_release" "longhorn" {
+#   name       = "longhorn"
+#   repository = local.longhorn-repo
+#   chart      = "longhorn"
+
+#   values = ["${file("./values/longhorn/values.yaml")}"]
+
+
+#   namespace  = kubernetes_namespace.agnes-system.metadata[0].name
+#   depends_on = [kubernetes_namespace.agnes-system]
+
+# }
+
+#openebs
+resource "helm_release" "openebs" {
+  name       = "openebs"
+  repository = local.openebs-repo
+  chart      = "openebs"
+
+  values = ["${file("./values/openebs/values.yaml")}"]
+
+
+  namespace  = kubernetes_namespace.agnes-system.metadata[0].name
+  depends_on = [kubernetes_namespace.agnes-system]
 
 }
+
+resource "kubernetes_storage_class" "openebs-lvm-storageclass" {
+  metadata {
+    name = "openebs-lvmpv"
+  }
+  storage_provisioner = "local.csi.openebs.io"
+  parameters = {
+    storage  = "lvm"
+    volgroup = "lvmvg"
+    fsType   = "xfs"
+    shared   = "yes"
+  }
+  allow_volume_expansion = true
+}
+
