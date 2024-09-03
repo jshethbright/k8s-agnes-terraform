@@ -1,3 +1,5 @@
+# TODO: Use custom helm chart with node-polling-interval
+
 release:
   version: "4.1.0"
 
@@ -75,3 +77,4 @@ engines:
   replicated:
     mayastor:
       enabled: false
+

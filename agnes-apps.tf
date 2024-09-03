@@ -58,63 +58,63 @@ resource "helm_release" "jellyfin" {
 # }
 
 # #ubuntu deployment
-resource "kubernetes_deployment" "ubuntu-debug" {
-  metadata {
-    name      = "ubuntu-debug"
-    namespace = kubernetes_namespace.agnes-apps.metadata[0].name
-  }
-  spec {
-    replicas = 1
-    selector {
-      match_labels = {
-        app = "ubuntu"
-      }
-    }
-    template {
-      metadata {
-        labels = {
-          app = "ubuntu"
-        }
-      }
-      spec {
-        container {
-          name    = "ubuntu"
-          image   = "ubuntu:latest"
-          command = ["/bin/bash", "-c", "--"]
-          args    = ["while true; do sleep 30; done;"]
-          security_context {
-            privileged = true
-          }
-          volume_mount {
-            name       = "main-storage"
-            mount_path = "/mnt/main-storage"
-          }
-          volume_mount {
-            name       = "host-storage"
-            mount_path = "/mnt/host-storage"
-          }
+# resource "kubernetes_deployment" "ubuntu-debug" {
+#   metadata {
+#     name      = "ubuntu-debug"
+#     namespace = kubernetes_namespace.agnes-apps.metadata[0].name
+#   }
+#   spec {
+#     replicas = 1
+#     selector {
+#       match_labels = {
+#         app = "ubuntu"
+#       }
+#     }
+#     template {
+#       metadata {
+#         labels = {
+#           app = "ubuntu"
+#         }
+#       }
+#       spec {
+#         container {
+#           name    = "ubuntu"
+#           image   = "ubuntu:latest"
+#           command = ["/bin/bash", "-c", "--"]
+#           args    = ["while true; do sleep 30; done;"]
+#           security_context {
+#             privileged = true
+#           }
+#           volume_mount {
+#             name       = "main-storage"
+#             mount_path = "/mnt/main-storage"
+#           }
+#           volume_mount {
+#             name       = "host-storage"
+#             mount_path = "/mnt/host-storage"
+#           }
 
-        }
-        volume {
-          name = "main-storage"
-          persistent_volume_claim {
-            claim_name = kubernetes_persistent_volume_claim.main-storage.metadata[0].name
-          }
-        }
-        volume {
-          name = "host-storage"
-          host_path {
-            path = "/var"
-            type = "Directory"
-          }
-        }
-      }
-    }
-  }
-  depends_on = [kubernetes_namespace.agnes-system, helm_release.nfd, helm_release.intel-device-plugins-operator]
+#         }
+#         volume {
+#           name = "main-storage"
+#           persistent_volume_claim {
+#             claim_name = kubernetes_persistent_volume_claim.main-storage.metadata[0].name
+#           }
+#         }
+#         volume {
+#           name = "host-storage"
+#           host_path {
+#             path = "/var"
+#             type = "Directory"
+#           }
+#         }
+#       }
+#     }
+#   }
+#   depends_on = [kubernetes_namespace.agnes-system, helm_release.nfd, helm_release.intel-device-plugins-operator]
 
 
-}
+# }
 
 
 # resource "helm_release" "samba" {
