@@ -45,6 +45,39 @@ resource "helm_release" "jellyfin" {
   }
 }
 
+resource "kubernetes_secret" "cloudflare-tunnel-creds" {
+  metadata {
+    name      = "cloudflare-tunnel-creds"
+    namespace = kubernetes_namespace.agnes-apps.metadata[0].name
+  }
+
+  data = {
+    "credentials.json" = "${file("secret-tunnel-credentials.json")}"
+  }
+}
+
+resource "helm_release" "cloudflare-tunnel" {
+  name       = "cloudflare-tunnel"
+  repository = local.cloudflare-repo
+  chart      = "cloudflare-tunnel"
+  namespace  = kubernetes_namespace.agnes-apps.metadata[0].name
+  version    = "0.3.2"
+
+  values = ["${file("./values/cloudflare-tunnel/values.yaml")}"]
+
+  set {
+    name  = "cloudflare.secretName"
+    value = kubernetes_secret.cloudflare-tunnel-creds.metadata[0].name
+  }
+
+  set {
+    name  = "cloudflare.tunnelName"
+    value = "agnes-server-tunnel"
+  }
+
+  depends_on = [kubernetes_secret.cloudflare-tunnel-creds]
+}
+
 # resource "kubernetes_secret" "samba-creds" {
 #   metadata {
 #     name      = "samba-creds"

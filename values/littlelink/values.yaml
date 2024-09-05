@@ -1,0 +1,62 @@
+image:
+  repository: ghcr.io/techno-tim/littlelink-server
+  pullPolicy: IfNotPresent
+  tag: latest@sha256:5b411f96dc72e08cd3efb89e76d0b49ef5627fffc8bce532068203f658381210
+service:
+  main:
+    ports:
+      main:
+        port: 10040
+        targetPort: 3000
+littlelink:
+  meta_title: "OST @ SD"
+  meta_description: "Orchestral Soundtracks "
+  meta_author: "techno tim"
+  theme: "Dark"
+  # favicon_url: "https://pbs.twimg.com/profile_images/1286144221217316864/qiaskopb_200x200.jpg"
+  # avatar_url: "https://pbs.twimg.com/profile_images/1286144221217316864/qiaskopb_200x200.jpg"
+  # avatar_2x_url: "https://pbs.twimg.com/profile_images/1286144221217316864/qiaskopb_400x400.jpg"
+  avatar_alt: ""
+  name: "OST @ SD"
+  bio: "We are a community orchestra specializing in Anime and Video Game music."
+  instagram: "https://www.instagram.com/ost.sd/"
+  discord: "https://discord.gg/qGeyJPXU"
+  youtube: ""
+  twitch: ""
+  twitter: ""
+  kit: ""
+  github: ""
+  tiktok: ""
+  footer: "Thanks for checking us out!"
+portal:
+  open:
+    enabled: true
+workload:
+  main:
+    replicas: 2
+    podSpec:
+      containers:
+        main:
+          envFrom:
+            - configMapRef:
+                name: config
+ingress:
+  littlelink-ingress:
+    expandObjectName: true
+    enabled: true
+    primary: true
+    required: false
+    ingressClassName: traefik
+    targetSelector:
+      main: main
+    hosts:
+      - host: links.sdost.org
+        paths:
+          - path: /
+            pathType: Prefix
+    integrations:
+      certManager:
+        enabled: true
+        certificateIssuer: letsencrypt-issuer
+      traefik:
+        enabled: false

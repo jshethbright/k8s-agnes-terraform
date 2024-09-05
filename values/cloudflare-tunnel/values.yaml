@@ -1,0 +1,8 @@
+# Cloudflare parameters.
+image:
+  repository: cloudflare/cloudflared
+  pullPolicy: IfNotPresent
+  # If supplied, this overrides "appVersion"
+  tag: ""
+
+replicaCount: 2
