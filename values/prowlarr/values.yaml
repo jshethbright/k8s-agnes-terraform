@@ -1,0 +1,48 @@
+persistence:
+  config:
+    enabled: true
+    targetSelector:
+      main:
+        main:
+          mountPath: /config
+        exportarr:
+          mountPath: /config
+          readOnly: true
+configmap:
+  dashboard:
+    enabled: false
+    labels:
+      grafana_dashboard: "1"
+    data:
+      prowlarr.json: >-
+        {{ .Files.Get "dashboard.json" | indent 8 }}
+metrics:
+  main:
+    enabled: false
+    type: "servicemonitor"
+    endpoints:
+      - port: metrics
+        path: /metrics
+    targetSelector: metrics
+    prometheusRule:
+      enabled: false
+ingress:
+  prowlarr-ingress:
+    expandObjectName: true
+    enabled: true
+    primary: true
+    required: false
+    ingressClassName: traefik
+    targetSelector:
+      main: main
+    hosts:
+      - host: prowlarr.jitarth.com
+        paths:
+          - path: /
+            pathType: Prefix
+    integrations:
+      certManager:
+        enabled: true
+        certificateIssuer: letsencrypt-issuer
+      traefik:
+        enabled: false

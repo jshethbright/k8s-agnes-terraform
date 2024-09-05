@@ -1,0 +1,46 @@
+persistence:
+  config:
+    enabled: true
+    targetSelector:
+      main:
+        main:
+          mountPath: /config
+        exportarr:
+          mountPath: /config
+          readOnly: true
+  media:
+    enabled: true
+    type: pvc
+    mountPath: /storage
+    dataSource:
+      kind: "PersistentVolumeClaim"
+metrics:
+  main:
+    enabled: false
+    type: "servicemonitor"
+    endpoints:
+      - port: metrics
+        path: /metrics
+    targetSelector: metrics
+    prometheusRule:
+      enabled: false
+ingress:
+  sonarr-ingress:
+    expandObjectName: true
+    enabled: true
+    primary: true
+    required: false
+    ingressClassName: traefik
+    targetSelector:
+      main: main
+    hosts:
+      - host: sonarr.jitarth.com
+        paths:
+          - path: /
+            pathType: Prefix
+    integrations:
+      certManager:
+        enabled: true
+        certificateIssuer: letsencrypt-issuer
+      traefik:
+        enabled: false
