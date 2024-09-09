@@ -1,0 +1,23 @@
+image:
+  repository: fallenbagel/jellyseerr
+  pullPolicy: IfNotPresent
+ingress:
+  jellyseerr-ingress:
+    expandObjectName: true
+    enabled: true
+    primary: true
+    required: false
+    ingressClassName: traefik
+    targetSelector:
+      main: main
+    hosts:
+      - host: jellyseerr.jitarth.com
+        paths:
+          - path: /
+            pathType: Prefix
+    integrations:
+      certManager:
+        enabled: true
+        certificateIssuer: letsencrypt-issuer
+      traefik:
+        enabled: false

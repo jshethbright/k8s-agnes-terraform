@@ -99,6 +99,11 @@ resource "helm_release" "qbittorrent" {
     name  = "persistence.media.dataSource.name"
     value = kubernetes_persistent_volume_claim.main-storage.metadata[0].name
   }
+
+  set {
+    name  = "workload.qbitportforward.podSpec.containers.qbitportforward.env.QBT_PASSWORD"
+    value = file("secret-qbit-password")
+  }
 }
 
 resource "helm_release" "radarr" {
@@ -250,3 +255,14 @@ resource "kubernetes_deployment" "ubuntu-debug" {
 #     value = kubernetes_secret.samba-creds.metadata[0].name
 #   }
 # }
+
+resource "helm_release" "jellyseerr" {
+  name    = "jellyseerr"
+  chart   = "oci://tccr.io/truecharts/jellyseerr"
+  version = "11.1.4"
+
+  values     = ["${file("./values/jellyseerr/values.yaml")}"]
+  namespace  = kubernetes_namespace.agnes-apps.metadata[0].name
+  depends_on = [kubernetes_namespace.agnes-apps, kubernetes_persistent_volume_claim.main-storage]
+}
+

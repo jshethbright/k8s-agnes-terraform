@@ -1,11 +1,9 @@
 image:
   repository: ghcr.io/onedr0p/qbittorrent
   pullPolicy: IfNotPresent
-  tag: 4.6.6@sha256:2fd0eba46205055c3f758411a79d5fa175df324f707dab9ad9a3a5be2ab92071
 qbitportforwardImage:
   repository: mjmeli/qbittorrent-port-forward-gluetun-server
   pullPolicy: IfNotPresent
-  tag: latest@sha256:67d0d21ed792cf80716d4211e7162b6d375af5c12f3cf096c9032ad705dddaa8
 
 securityContext:
   container:
@@ -29,7 +27,7 @@ service:
         port: "{{ .Values.service.torrent.ports.torrent.port }}"
         protocol: udp
   gluetun:
-    enabled: true
+    enabled: false
     type: ClusterIP
     ports:
       gluetun:
@@ -55,7 +53,7 @@ workload:
   qbitportforward:
     enabled: false
     type: CronJob
-    schedule: "*/5 * * * *"
+    schedule: "*/1 * * * *"
     podSpec:
       restartPolicy: OnFailure
       containers:
@@ -73,8 +71,8 @@ workload:
           env:
             QBT_USERNAME: "{{ .Values.qbitportforward.QBT_USERNAME }}"
             QBT_PASSWORD: "{{ .Values.qbitportforward.QBT_PASSWORD }}"
-            QBT_ADDR: '{{ printf "http://%v:%v" (include "tc.v1.common.lib.chart.names.fullname" $) .Values.service.main.ports.main.port }}'
-            GTN_ADDR: '{{ printf "http://%v-gluetun:8000" (include "tc.v1.common.lib.chart.names.fullname" $) }}'
+            QBT_ADDR: '{{ printf "http://qbittorrent.agnes-apps.svc.cluster.local:%v" .Values.service.main.ports.main.port }}'
+            GTN_ADDR: "http://qbittorrent-gluetun.agnes-apps.svc.cluster.local:8000"
           command: /usr/src/app/main.sh
 persistence:
   config:
