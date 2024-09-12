@@ -171,6 +171,17 @@ resource "helm_release" "intel-gpu-plugin" {
   depends_on = [kubernetes_namespace.agnes-system, helm_release.nfd, helm_release.intel-device-plugins-operator]
 }
 
+resource "helm_release" "kube-prometheus-stack" {
+  name       = "kube-prometheus-stack"
+  repository = local.prometheus-community-repo
+  chart      = "kube-prometheus-stack"
+
+  namespace  = kubernetes_namespace.agnes-system.metadata[0].name
+  depends_on = [kubernetes_namespace.agnes-system]
+  values     = ["${file("./values/kube-prometheus-stack/values.yaml")}"]
+}
+
+
 #rook-ceph
 # resource "helm_release" "rook-ceph-operator" {
 #   name       = "rook-ceph"
