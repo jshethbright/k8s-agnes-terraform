@@ -179,6 +179,11 @@ resource "helm_release" "kube-prometheus-stack" {
   namespace  = kubernetes_namespace.agnes-system.metadata[0].name
   depends_on = [kubernetes_namespace.agnes-system]
   values     = ["${file("./values/kube-prometheus-stack/values.yaml")}"]
+  set {
+    name  = "grafana.adminPassword"
+    value = file("./secret-qbit-password")
+
+  }
 }
 
 
