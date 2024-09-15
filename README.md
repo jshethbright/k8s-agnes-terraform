@@ -10,4 +10,4 @@ Terraform for managing my personal kubernetes cluster. The cluster is built with
 - External facing applications are tunnelled through Cloudflare Zero Trust.
 - Monitoring and alerting is through the Prometheus operator and Grafana
 - Most applications are created through Truecharts helm charts.
-- LoadBalancing is handled through MetalLB in L2 mode and a VIP configured in Talos.
+- Load Balancing is handled through MetalLB in L2 mode and a VIP configured in Talos.
