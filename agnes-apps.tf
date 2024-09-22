@@ -270,7 +270,7 @@ resource "helm_release" "homebridge" {
   name       = "homebridge"
   repository = local.agnes-repo
   chart      = "homebridge"
-  version    = "0.2.1"
+  version    = "0.2.2"
   values     = ["${file("./values/homebridge/values.yaml")}"]
   namespace  = kubernetes_namespace.agnes-apps.metadata[0].name
 }
