@@ -266,3 +266,12 @@ resource "helm_release" "jellyseerr" {
   depends_on = [kubernetes_namespace.agnes-apps, kubernetes_persistent_volume_claim.main-storage]
 }
 
+resource "helm_release" "homebridge" {
+  name       = "homebridge"
+  repository = local.agnes-repo
+  chart      = "homebridge"
+  version    = "0.2.1"
+  values     = ["${file("./values/homebridge/values.yaml")}"]
+  namespace  = kubernetes_namespace.agnes-apps.metadata[0].name
+}
+
