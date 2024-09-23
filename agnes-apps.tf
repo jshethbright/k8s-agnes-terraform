@@ -27,9 +27,11 @@ resource "kubernetes_persistent_volume_claim" "main-storage" {
 }
 
 resource "helm_release" "jellyfin" {
-  name    = "jellyfin"
-  chart   = "oci://tccr.io/truecharts/jellyfin"
-  version = "20.1.20"
+  name       = "jellyfin"
+  chart      = "jellyfin"
+  version    = "20.1.25"
+  repository = local.truecharts-fork-repo
+
 
   namespace  = kubernetes_namespace.agnes-apps.metadata[0].name
   depends_on = [kubernetes_namespace.agnes-apps, kubernetes_persistent_volume_claim.main-storage]
@@ -82,9 +84,10 @@ resource "helm_release" "cloudflare-tunnel" {
 
 # qbit
 resource "helm_release" "qbittorrent" {
-  name    = "qbittorrent"
-  chart   = "oci://tccr.io/truecharts/qbittorrent"
-  version = "21.1.8"
+  name       = "qbittorrent"
+  chart      = "qbittorrent"
+  version    = "21.1.11"
+  repository = local.truecharts-fork-repo
 
   namespace  = kubernetes_namespace.agnes-apps.metadata[0].name
   depends_on = [kubernetes_namespace.agnes-apps, kubernetes_persistent_volume_claim.main-storage]
@@ -107,9 +110,10 @@ resource "helm_release" "qbittorrent" {
 }
 
 resource "helm_release" "radarr" {
-  name    = "radarr"
-  chart   = "oci://tccr.io/truecharts/radarr"
-  version = "23.4.4"
+  name       = "radarr"
+  chart      = "radarr"
+  version    = "23.4.6"
+  repository = local.truecharts-fork-repo
 
   namespace  = kubernetes_namespace.agnes-apps.metadata[0].name
   depends_on = [kubernetes_namespace.agnes-apps, kubernetes_persistent_volume_claim.main-storage]
@@ -128,9 +132,11 @@ resource "helm_release" "radarr" {
 
 
 resource "helm_release" "sonarr" {
-  name    = "sonarr"
-  chart   = "oci://tccr.io/truecharts/sonarr"
-  version = "23.1.8"
+  name       = "sonarr"
+  chart      = "sonarr"
+  version    = "23.1.10"
+  repository = local.truecharts-fork-repo
+
 
   namespace  = kubernetes_namespace.agnes-apps.metadata[0].name
   depends_on = [kubernetes_namespace.agnes-apps, kubernetes_persistent_volume_claim.main-storage]
@@ -149,9 +155,10 @@ resource "helm_release" "sonarr" {
 
 
 resource "helm_release" "prowlarr" {
-  name    = "prowlarr"
-  chart   = "oci://tccr.io/truecharts/prowlarr"
-  version = "18.4.0"
+  name       = "prowlarr"
+  chart      = "prowlarr"
+  version    = "18.5.2"
+  repository = local.truecharts-fork-repo
 
   namespace  = kubernetes_namespace.agnes-apps.metadata[0].name
   depends_on = [kubernetes_namespace.agnes-apps, kubernetes_persistent_volume_claim.main-storage]
@@ -161,9 +168,10 @@ resource "helm_release" "prowlarr" {
 
 
 resource "helm_release" "recyclarr" {
-  name    = "recyclarr"
-  chart   = "oci://tccr.io/truecharts/recyclarr"
-  version = "12.2.4"
+  name       = "recyclarr"
+  chart      = "recyclarr"
+  version    = "12.2.7"
+  repository = local.truecharts-fork-repo
 
   namespace  = kubernetes_namespace.agnes-apps.metadata[0].name
   depends_on = [kubernetes_namespace.agnes-apps, kubernetes_persistent_volume_claim.main-storage]
@@ -257,9 +265,10 @@ resource "kubernetes_deployment" "ubuntu-debug" {
 # }
 
 resource "helm_release" "jellyseerr" {
-  name    = "jellyseerr"
-  chart   = "oci://tccr.io/truecharts/jellyseerr"
-  version = "11.1.4"
+  name       = "jellyseerr"
+  chart      = "jellyseerr"
+  repository = local.truecharts-fork-repo
+  version    = "11.1.6"
 
   values     = ["${file("./values/jellyseerr/values.yaml")}"]
   namespace  = kubernetes_namespace.agnes-apps.metadata[0].name
