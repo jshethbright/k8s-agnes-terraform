@@ -22,6 +22,9 @@ resources:
   limits:
     cpu: 4000m
     memory: 4Gi
+  requests:
+    cpu: 2000m
+    memory: 1Gi
 workload:
   main:
     replicas: 1

@@ -1,0 +1,43 @@
+ingress:
+  rdtclient-ingress:
+    expandObjectName: true
+    enabled: true
+    primary: true
+    required: false
+    ingressClassName: traefik
+    targetSelector:
+      main: main
+    hosts:
+      - host: rdtclient.jitarth.com
+        paths:
+          - path: /
+            pathType: Prefix
+    integrations:
+      certManager:
+        enabled: true
+        certificateIssuer: letsencrypt-issuer
+      traefik:
+        enabled: false
+persistence:
+  db:
+    enabled: true
+    mountPath: "/data/db"
+  config:
+    enabled: true
+    targetSelector:
+      aria2:
+        aria2:
+          mountPath: /config
+  media:
+    enabled: true
+    type: pvc
+    mountPath: /data/media
+    dataSource:
+      kind: "PersistentVolumeClaim"
+resources:
+  limits:
+    cpu: 500m
+    memory: 1Gi
+  requests:
+    cpu: 100m
+    memory: 500Mi

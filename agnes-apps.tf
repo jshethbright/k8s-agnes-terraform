@@ -155,10 +155,9 @@ resource "helm_release" "sonarr" {
 
 
 resource "helm_release" "prowlarr" {
-  name       = "prowlarr"
-  chart      = "prowlarr"
-  version    = "18.5.2"
-  repository = local.truecharts-fork-repo
+  name    = "prowlarr"
+  chart   = "oci://tccr.io/truecharts/prowlarr"
+  version = "18.7.0"
 
   namespace  = kubernetes_namespace.agnes-apps.metadata[0].name
   depends_on = [kubernetes_namespace.agnes-apps, kubernetes_persistent_volume_claim.main-storage]
@@ -284,3 +283,23 @@ resource "helm_release" "homebridge" {
   namespace  = kubernetes_namespace.agnes-apps.metadata[0].name
 }
 
+resource "helm_release" "rdtclient" {
+  name    = "rdtclient"
+  chart   = "oci://tccr.io/truecharts/rdtclient"
+  version = "6.2.0"
+
+  values     = ["${file("./values/rdtclient/values.yaml")}"]
+  namespace  = kubernetes_namespace.agnes-apps.metadata[0].name
+  depends_on = [kubernetes_namespace.agnes-apps, kubernetes_persistent_volume_claim.main-storage]
+
+  set {
+    name  = "persistence.media.existingClaim"
+    value = kubernetes_persistent_volume_claim.main-storage.metadata[0].name
+  }
+
+  set {
+    name  = "persistence.media.dataSource.name"
+    value = kubernetes_persistent_volume_claim.main-storage.metadata[0].name
+  }
+
+}
