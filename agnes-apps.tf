@@ -302,4 +302,14 @@ resource "helm_release" "rdtclient" {
     value = kubernetes_persistent_volume_claim.main-storage.metadata[0].name
   }
 
+  set {
+    name  = "persistence.aria2-media.existingClaim"
+    value = kubernetes_persistent_volume_claim.main-storage.metadata[0].name
+  }
+
+  set {
+    name  = "persistence.aria2-media.dataSource.name"
+    value = kubernetes_persistent_volume_claim.main-storage.metadata[0].name
+  }
+
 }

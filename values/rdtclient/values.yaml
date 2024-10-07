@@ -34,10 +34,19 @@ persistence:
     mountPath: /data/media
     dataSource:
       kind: "PersistentVolumeClaim"
+  aria2-media:
+    enabled: true
+    type: pvc
+    dataSource:
+      kind: "PersistentVolumeClaim"
+    targetSelector:
+      aria2:
+        aria2:
+          mountPath: /data/media
 resources:
   limits:
-    cpu: 500m
-    memory: 1Gi
+    cpu: 2000m
+    memory: 4Gi
   requests:
     cpu: 100m
-    memory: 500Mi
+    memory: 2Gi
