@@ -43,6 +43,44 @@ persistence:
       aria2:
         aria2:
           mountPath: /data/media
+workload:
+  aria2:
+    enabled: true
+    type: Deployment
+    strategy: RollingUpdate
+    replicas: 1
+    podSpec:
+      containers:
+        aria2:
+          primary: true
+          enabled: true
+          imageSelector: aria2Image
+          securityContext:
+            readOnlyRootFilesystem: false
+            runAsGroup: 0
+            runAsNonRoot: false
+            runAsUser: 0
+          probes:
+            liveness:
+              enabled: true
+              type: tcp
+              port: "{{ .Values.service.aria2.ports.rpc.port }}"
+            readiness:
+              enabled: true
+              type: tcp
+              port: "{{ .Values.service.aria2.ports.rpc.port }}"
+            startup:
+              enabled: true
+              type: tcp
+              port: "{{ .Values.service.aria2.ports.rpc.port }}"
+          env:
+            RPC_PORT: "{{ .Values.service.aria2.ports.rpc.port }}"
+            LISTEN_PORT: "{{ .Values.service.torrent.ports.torrent.port }}"
+            RPC_SECRET: "{{ .Values.aria2.rpc_secret }}"
+            DISK_CACHE: "{{ .Values.aria2.disk_cache }}"
+            IPV6_MODE: false
+            UPDATE_TRACKERS: "{{ .Values.aria2.update_trackers }}"
+            CUSTOM_TRACKER_URL: "{{ .Values.aria2.custom_trackers_url }}"
 resources:
   limits:
     cpu: 2000m
