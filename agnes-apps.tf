@@ -313,3 +313,27 @@ resource "helm_release" "rdtclient" {
   }
 
 }
+
+resource "helm_release" "sftpgo" {
+  name    = "sftpgo"
+  chart   = "oci://tccr.io/truecharts/sftpgo"
+  version = "8.2.0"
+
+  set {
+    name  = "workload.main.replicas"
+    value = 0
+  }
+  set {
+    name  = "persistence.media.existingClaim"
+    value = kubernetes_persistent_volume_claim.main-storage.metadata[0].name
+  }
+
+  set {
+    name  = "persistence.media.dataSource.name"
+    value = kubernetes_persistent_volume_claim.main-storage.metadata[0].name
+  }
+
+  values     = ["${file("./values/sftpgo/values.yaml")}"]
+  namespace  = kubernetes_namespace.agnes-apps.metadata[0].name
+  depends_on = [kubernetes_namespace.agnes-apps, kubernetes_persistent_volume_claim.main-storage]
+}

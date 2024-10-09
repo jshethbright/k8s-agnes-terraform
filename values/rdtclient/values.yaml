@@ -31,7 +31,7 @@ persistence:
   media:
     enabled: true
     type: pvc
-    mountPath: /data/media
+    mountPath: /storage
     dataSource:
       kind: "PersistentVolumeClaim"
   aria2-media:
@@ -42,7 +42,7 @@ persistence:
     targetSelector:
       aria2:
         aria2:
-          mountPath: /data/media
+          mountPath: /storage
 workload:
   aria2:
     enabled: true
@@ -83,8 +83,8 @@ workload:
             CUSTOM_TRACKER_URL: "{{ .Values.aria2.custom_trackers_url }}"
 resources:
   limits:
-    cpu: 2000m
-    memory: 4Gi
+    cpu: 1000m
+    memory: 2Gi
   requests:
     cpu: 100m
-    memory: 2Gi
+    memory: 500Mi
