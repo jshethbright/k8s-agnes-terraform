@@ -1,0 +1,76 @@
+# Default values for webdav.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 1
+
+image:
+  repository: derkades/webdav
+  pullPolicy: IfNotPresent
+
+
+username: "admin"
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+podAnnotations: {}
+podLabels: {}
+
+podSecurityContext: {}
+  # fsGroup: 2000
+
+securityContext:
+  readOnlyRootFilesystem: false
+  runAsNonRoot: false
+  runAsUser: 0
+  runAsGroup: 0
+
+service:
+  type: ClusterIP
+  port: 8080
+
+
+ingress:
+  enabled: true
+  className: traefik
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-issuer
+  hosts:
+    - host: webdav.jitarth.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+   - secretName: webdav-ingress-tls
+     hosts:
+       - webdav.jitarth.com
+
+resources: {}
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+
+# Additional volumes on the output Deployment definition.
+volumes: 
+- name: main-storage
+
+# Additional volumeMounts on the output Deployment definition.
+volumeMounts:
+- name: main-storage
+  mountPath: "/data"
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}

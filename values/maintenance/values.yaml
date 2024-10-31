@@ -1,0 +1,15 @@
+maintenance:
+  namespace: sdost # why tf is this here?
+  enabled: true
+  title: Under Construction
+  message: Site coming soon!
+
+ingress:
+  enabled: true
+  className: traefik
+  host: sdost.org
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-issuer
+  tls:
+    enabled: true
+    secretName: sdost-ingress-tls

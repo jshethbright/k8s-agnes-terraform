@@ -35,6 +35,11 @@ workload:
     podSpec:
       containers:
         main:
+          probes:
+            readiness:
+              enabled: false
+            liveness:
+              enabled: false
           env:
             SFTPGO_COMMON__DEFENDER__ENABLED: "true"
             SFTPGO_SFTPD__BINDINGS__0: ""

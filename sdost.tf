@@ -12,6 +12,15 @@ resource "helm_release" "littlelink" {
   values    = ["${file("./values/littlelink/values.yaml")}"]
 }
 
+resource "helm_release" "maintenance" {
+  name       = "maintenance"
+  chart      = "maintenance"
+  repository = "https://codewithemad.github.io/helm-charts/"
+  namespace  = kubernetes_namespace.sdost.metadata[0].name
+  values     = ["${file("./values/maintenance/values.yaml")}"]
+
+}
+
 
 
 resource "kubernetes_manifest" "parts-sdost-middleware" {

@@ -321,7 +321,7 @@ resource "helm_release" "sftpgo" {
 
   set {
     name  = "workload.main.replicas"
-    value = 0
+    value = 1
   }
   set {
     name  = "persistence.media.existingClaim"
@@ -337,3 +337,24 @@ resource "helm_release" "sftpgo" {
   namespace  = kubernetes_namespace.agnes-apps.metadata[0].name
   depends_on = [kubernetes_namespace.agnes-apps, kubernetes_persistent_volume_claim.main-storage]
 }
+
+# resource "helm_release" "webdav" {
+#   name       = "webdav"
+#   repository = local.agnes-repo
+#   chart      = "webdav"
+#   version    = "0.1.3"
+#   values     = ["${file("./values/webdav/values.yaml")}"]
+#   namespace  = kubernetes_namespace.agnes-apps.metadata[0].name
+
+#   set {
+#     name  = "password"
+#     value = file("secret-qbit-password")
+#   }
+
+#   set {
+#     name  = "volumes[0].persistentVolumeClaim.claimName"
+#     value = kubernetes_persistent_volume_claim.main-storage.metadata[0].name
+#   }
+
+#   depends_on = [kubernetes_namespace.agnes-apps, kubernetes_persistent_volume_claim.main-storage]
+# }
