@@ -3,6 +3,7 @@ maintenance:
   enabled: true
   title: Under Construction
   message: Site coming soon!
+  bannerURL: https://raw.githubusercontent.com/jshethbright/k8s-agnes-terraform/main/values/maintenance/logo_full_transparent_colors.png
 
 ingress:
   enabled: true
