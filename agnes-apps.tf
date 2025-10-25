@@ -27,10 +27,9 @@ resource "kubernetes_persistent_volume_claim" "main-storage" {
 }
 
 resource "helm_release" "jellyfin" {
-  name       = "jellyfin"
-  chart      = "jellyfin"
-  version    = "20.1.25"
-  repository = local.truecharts-fork-repo
+  name    = "jellyfin"
+  chart   = "oci://tccr.io/truecharts/jellyfin"
+  version = "20.5.0"
 
 
   namespace  = kubernetes_namespace.agnes-apps.metadata[0].name
@@ -157,12 +156,11 @@ resource "helm_release" "sonarr" {
 resource "helm_release" "prowlarr" {
   name    = "prowlarr"
   chart   = "oci://tccr.io/truecharts/prowlarr"
-  version = "18.7.0"
+  version = "18.12.1"
 
   namespace  = kubernetes_namespace.agnes-apps.metadata[0].name
   depends_on = [kubernetes_namespace.agnes-apps, kubernetes_persistent_volume_claim.main-storage]
   values     = ["${file("./values/prowlarr/values.yaml")}"]
-
 }
 
 
@@ -286,7 +284,7 @@ resource "helm_release" "homebridge" {
 resource "helm_release" "rdtclient" {
   name    = "rdtclient"
   chart   = "oci://tccr.io/truecharts/rdtclient"
-  version = "6.2.0"
+  version = "6.4.1"
 
   values     = ["${file("./values/rdtclient/values.yaml")}"]
   namespace  = kubernetes_namespace.agnes-apps.metadata[0].name
@@ -358,3 +356,12 @@ resource "helm_release" "sftpgo" {
 
 #   depends_on = [kubernetes_namespace.agnes-apps, kubernetes_persistent_volume_claim.main-storage]
 # }
+resource "helm_release" "actualserver" {
+  name       = "actualserver"
+  chart      = "oci://tccr.io/truecharts/actualserver"
+  version    = "13.5.0"
+
+  values     = ["${file("./values/actualserver/values.yaml")}"]
+  namespace  = kubernetes_namespace.agnes-apps.metadata[0].name
+  depends_on = [kubernetes_namespace.agnes-apps, kubernetes_persistent_volume_claim.main-storage]
+}

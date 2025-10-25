@@ -1,11 +1,13 @@
-# terraform {
-#   backend "remote" {
-#     organization = "jshethbright"
-#     workspaces {
-#       name = "k8s-agnes"
-#     }
-#   }
-# }
+terraform { 
+  cloud { 
+    
+    organization = "agnes-js" 
+
+    workspaces { 
+      name = "k8s-agnes-terraform" 
+    } 
+  } 
+}
 
 
 provider "helm" {
