@@ -1,0 +1,37 @@
+monitoring:
+  enabled: true
+
+apiUrl: https://restcountries.com/v3.1/all?fields=name,cca2
+
+volumes:
+  - name: country-api-cache
+    configMap:
+      name: country-api-cache
+volumeMounts:
+  - name: country-api-cache
+    mountPath: /cache
+service:
+  port: 8080
+ingress:
+  enabled: true
+  className: "traefik"
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-issuer
+  hosts:
+    - host: country-api.jitarth.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: country-api-ingress-tls
+      hosts:
+      - country-api.jitarth.com
+
+livelinessProbe:
+  initialDelaySeconds: 60
+  periodSeconds: 30
+  timeoutSeconds: 5
+readinessProbe:
+  initialDelaySeconds: 10
+  periodSeconds: 15
+  timeoutSeconds: 5

@@ -11,8 +11,8 @@ resource "kubernetes_namespace" "agnes-system" {
 
 # traefik
 resource "helm_release" "traefik" {
-  name = "traefik"
-
+  name       = "traefik"
+  version    = "30.1.0"
   repository = "https://traefik.github.io/charts"
   chart      = "traefik"
 
@@ -49,11 +49,13 @@ resource "helm_release" "cert-manager" {
 
   namespace  = kubernetes_namespace.agnes-system.metadata[0].name
   depends_on = [kubernetes_namespace.agnes-system]
-  set {
-    name  = "crds.enabled"
-    value = true
-  }
 
+  set = [
+    {
+      name  = "crds.enabled"
+      value = "true"
+    }
+  ]
 }
 
 # metallb
@@ -156,6 +158,7 @@ resource "helm_release" "intel-device-plugins-operator" {
   name       = "intel-device-plugins-operator"
   repository = "https://intel.github.io/helm-charts/"
   chart      = "intel-device-plugins-operator"
+  version    = "0.30.0"
 
   namespace  = kubernetes_namespace.agnes-system.metadata[0].name
   depends_on = [kubernetes_namespace.agnes-system, helm_release.nfd]
@@ -166,6 +169,7 @@ resource "helm_release" "intel-gpu-plugin" {
   name       = "intel-gpu-plugin"
   repository = "https://intel.github.io/helm-charts/"
   chart      = "intel-device-plugins-gpu"
+  version    = "0.30.0"
 
   namespace  = kubernetes_namespace.agnes-system.metadata[0].name
   depends_on = [kubernetes_namespace.agnes-system, helm_release.nfd, helm_release.intel-device-plugins-operator]
@@ -175,15 +179,17 @@ resource "helm_release" "kube-prometheus-stack" {
   name       = "kube-prometheus-stack"
   repository = local.prometheus-community-repo
   chart      = "kube-prometheus-stack"
-
+  version    = "62.6.0"
   namespace  = kubernetes_namespace.agnes-system.metadata[0].name
   depends_on = [kubernetes_namespace.agnes-system]
   values     = ["${file("./values/kube-prometheus-stack/values.yaml")}"]
-  set {
-    name  = "grafana.adminPassword"
-    value = file("./secret-qbit-password")
 
-  }
+  set = [
+    {
+      name  = "grafana.adminPassword"
+      value = file("./secret-qbit-password")
+    }
+  ]
 }
 
 

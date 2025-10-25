@@ -56,6 +56,9 @@ mayastor:
   crds:
     enabled: false
 
+loki:
+  enabled: false
+
 # -- Configuration options for pre-upgrade helm hook job.
 preUpgradeHook:
   image:

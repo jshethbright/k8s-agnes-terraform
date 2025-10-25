@@ -31,20 +31,20 @@ resource "helm_release" "jellyfin" {
   chart   = "oci://tccr.io/truecharts/jellyfin"
   version = "20.5.0"
 
-
   namespace  = kubernetes_namespace.agnes-apps.metadata[0].name
   depends_on = [kubernetes_namespace.agnes-apps, kubernetes_persistent_volume_claim.main-storage]
   values     = ["${file("./values/jellyfin/values.yaml")}"]
 
-  set {
-    name  = "persistence.media.existingClaim"
-    value = kubernetes_persistent_volume_claim.main-storage.metadata[0].name
-  }
-
-  set {
-    name  = "persistence.media.dataSource.name"
-    value = kubernetes_persistent_volume_claim.main-storage.metadata[0].name
-  }
+  set = [
+    {
+      name  = "persistence.media.existingClaim"
+      value = kubernetes_persistent_volume_claim.main-storage.metadata[0].name
+    },
+    {
+      name  = "persistence.media.dataSource.name"
+      value = kubernetes_persistent_volume_claim.main-storage.metadata[0].name
+    }
+  ]
 }
 
 resource "kubernetes_secret" "cloudflare-tunnel-creds" {
@@ -68,15 +68,16 @@ resource "helm_release" "cloudflare-tunnel" {
 
   values = ["${file("./values/cloudflare-tunnel/values.yaml")}"]
 
-  set {
-    name  = "cloudflare.secretName"
-    value = kubernetes_secret.cloudflare-tunnel-creds.metadata[0].name
-  }
-
-  set {
-    name  = "cloudflare.tunnelName"
-    value = "agnes-server-tunnel"
-  }
+  set = [
+    {
+      name  = "cloudflare.secretName"
+      value = kubernetes_secret.cloudflare-tunnel-creds.metadata[0].name
+    },
+    {
+      name  = "cloudflare.tunnelName"
+      value = "agnes-server-tunnel"
+    }
+  ]
 
   depends_on = [kubernetes_secret.cloudflare-tunnel-creds]
 }
@@ -92,20 +93,20 @@ resource "helm_release" "qbittorrent" {
   depends_on = [kubernetes_namespace.agnes-apps, kubernetes_persistent_volume_claim.main-storage]
   values     = ["${file("./values/qbittorrent/values.yaml")}"]
 
-  set {
-    name  = "persistence.media.existingClaim"
-    value = kubernetes_persistent_volume_claim.main-storage.metadata[0].name
-  }
-
-  set {
-    name  = "persistence.media.dataSource.name"
-    value = kubernetes_persistent_volume_claim.main-storage.metadata[0].name
-  }
-
-  set {
-    name  = "workload.qbitportforward.podSpec.containers.qbitportforward.env.QBT_PASSWORD"
-    value = file("secret-qbit-password")
-  }
+  set = [
+    {
+      name  = "persistence.media.existingClaim"
+      value = kubernetes_persistent_volume_claim.main-storage.metadata[0].name
+    },
+    {
+      name  = "persistence.media.dataSource.name"
+      value = kubernetes_persistent_volume_claim.main-storage.metadata[0].name
+    },
+    {
+      name  = "workload.qbitportforward.podSpec.containers.qbitportforward.env.QBT_PASSWORD"
+      value = file("secret-qbit-password")
+    }
+  ]
 }
 
 resource "helm_release" "radarr" {
@@ -118,15 +119,16 @@ resource "helm_release" "radarr" {
   depends_on = [kubernetes_namespace.agnes-apps, kubernetes_persistent_volume_claim.main-storage]
   values     = ["${file("./values/radarr/values.yaml")}"]
 
-  set {
-    name  = "persistence.media.existingClaim"
-    value = kubernetes_persistent_volume_claim.main-storage.metadata[0].name
-  }
-
-  set {
-    name  = "persistence.media.dataSource.name"
-    value = kubernetes_persistent_volume_claim.main-storage.metadata[0].name
-  }
+  set = [
+    {
+      name  = "persistence.media.existingClaim"
+      value = kubernetes_persistent_volume_claim.main-storage.metadata[0].name
+    },
+    {
+      name  = "persistence.media.dataSource.name"
+      value = kubernetes_persistent_volume_claim.main-storage.metadata[0].name
+    }
+  ]
 }
 
 
@@ -136,20 +138,20 @@ resource "helm_release" "sonarr" {
   version    = "23.1.10"
   repository = local.truecharts-fork-repo
 
-
   namespace  = kubernetes_namespace.agnes-apps.metadata[0].name
   depends_on = [kubernetes_namespace.agnes-apps, kubernetes_persistent_volume_claim.main-storage]
   values     = ["${file("./values/sonarr/values.yaml")}"]
 
-  set {
-    name  = "persistence.media.existingClaim"
-    value = kubernetes_persistent_volume_claim.main-storage.metadata[0].name
-  }
-
-  set {
-    name  = "persistence.media.dataSource.name"
-    value = kubernetes_persistent_volume_claim.main-storage.metadata[0].name
-  }
+  set = [
+    {
+      name  = "persistence.media.existingClaim"
+      value = kubernetes_persistent_volume_claim.main-storage.metadata[0].name
+    },
+    {
+      name  = "persistence.media.dataSource.name"
+      value = kubernetes_persistent_volume_claim.main-storage.metadata[0].name
+    }
+  ]
 }
 
 
@@ -164,15 +166,15 @@ resource "helm_release" "prowlarr" {
 }
 
 
-resource "helm_release" "recyclarr" {
-  name       = "recyclarr"
-  chart      = "recyclarr"
-  version    = "12.2.7"
-  repository = local.truecharts-fork-repo
+# resource "helm_release" "recyclarr" {
+#   name       = "recyclarr"
+#   chart      = "recyclarr"
+#   version    = "12.2.7"
+#   repository = local.truecharts-fork-repo
 
-  namespace  = kubernetes_namespace.agnes-apps.metadata[0].name
-  depends_on = [kubernetes_namespace.agnes-apps, kubernetes_persistent_volume_claim.main-storage]
-}
+#   namespace  = kubernetes_namespace.agnes-apps.metadata[0].name
+#   depends_on = [kubernetes_namespace.agnes-apps, kubernetes_persistent_volume_claim.main-storage]
+# }
 
 
 # resource "kubernetes_secret" "samba-creds" {
@@ -188,61 +190,61 @@ resource "helm_release" "recyclarr" {
 # }
 
 # #ubuntu deployment
-resource "kubernetes_deployment" "ubuntu-debug" {
-  metadata {
-    name      = "ubuntu-debug"
-    namespace = kubernetes_namespace.agnes-apps.metadata[0].name
-  }
-  spec {
-    replicas = 0
-    selector {
-      match_labels = {
-        app = "ubuntu"
-      }
-    }
-    template {
-      metadata {
-        labels = {
-          app = "ubuntu"
-        }
-      }
-      spec {
-        container {
-          name    = "ubuntu"
-          image   = "ubuntu:latest"
-          command = ["/bin/bash", "-c", "--"]
-          args    = ["while true; do sleep 30; done;"]
-          security_context {
-            privileged = true
-          }
-          volume_mount {
-            name       = "main-storage"
-            mount_path = "/mnt/main-storage"
-          }
-          volume_mount {
-            name       = "host-storage"
-            mount_path = "/mnt/host-storage"
-          }
+# resource "kubernetes_deployment" "ubuntu-debug" {
+#   metadata {
+#     name      = "ubuntu-debug"
+#     namespace = kubernetes_namespace.agnes-apps.metadata[0].name
+#   }
+#   spec {
+#     replicas = 0
+#     selector {
+#       match_labels = {
+#         app = "ubuntu"
+#       }
+#     }
+#     template {
+#       metadata {
+#         labels = {
+#           app = "ubuntu"
+#         }
+#       }
+#       spec {
+#         container {
+#           name    = "ubuntu"
+#           image   = "ubuntu:latest"
+#           command = ["/bin/bash", "-c", "--"]
+#           args    = ["while true; do sleep 30; done;"]
+#           security_context {
+#             privileged = true
+#           }
+#           volume_mount {
+#             name       = "main-storage"
+#             mount_path = "/mnt/main-storage"
+#           }
+#           volume_mount {
+#             name       = "host-storage"
+#             mount_path = "/mnt/host-storage"
+#           }
 
-        }
-        volume {
-          name = "main-storage"
-          persistent_volume_claim {
-            claim_name = kubernetes_persistent_volume_claim.main-storage.metadata[0].name
-          }
-        }
-        volume {
-          name = "host-storage"
-          host_path {
-            path = "/var"
-            type = "Directory"
-          }
-        }
-      }
-    }
-  }
-  depends_on = [kubernetes_namespace.agnes-system, helm_release.nfd, helm_release.intel-device-plugins-operator]
-}
+#         }
+#         volume {
+#           name = "main-storage"
+#           persistent_volume_claim {
+#             claim_name = kubernetes_persistent_volume_claim.main-storage.metadata[0].name
+#           }
+#         }
+#         volume {
+#           name = "host-storage"
+#           host_path {
+#             path = "/var"
+#             type = "Directory"
+#           }
+#         }
+#       }
+#     }
+#   }
+#   depends_on = [kubernetes_namespace.agnes-system, helm_release.nfd, helm_release.intel-device-plugins-operator]
+# }
 
 
 # resource "helm_release" "samba" {
@@ -290,26 +292,24 @@ resource "helm_release" "rdtclient" {
   namespace  = kubernetes_namespace.agnes-apps.metadata[0].name
   depends_on = [kubernetes_namespace.agnes-apps, kubernetes_persistent_volume_claim.main-storage]
 
-  set {
-    name  = "persistence.media.existingClaim"
-    value = kubernetes_persistent_volume_claim.main-storage.metadata[0].name
-  }
-
-  set {
-    name  = "persistence.media.dataSource.name"
-    value = kubernetes_persistent_volume_claim.main-storage.metadata[0].name
-  }
-
-  set {
-    name  = "persistence.aria2-media.existingClaim"
-    value = kubernetes_persistent_volume_claim.main-storage.metadata[0].name
-  }
-
-  set {
-    name  = "persistence.aria2-media.dataSource.name"
-    value = kubernetes_persistent_volume_claim.main-storage.metadata[0].name
-  }
-
+  set = [
+    {
+      name  = "persistence.media.existingClaim"
+      value = kubernetes_persistent_volume_claim.main-storage.metadata[0].name
+    },
+    {
+      name  = "persistence.media.dataSource.name"
+      value = kubernetes_persistent_volume_claim.main-storage.metadata[0].name
+    },
+    {
+      name  = "persistence.aria2-media.existingClaim"
+      value = kubernetes_persistent_volume_claim.main-storage.metadata[0].name
+    },
+    {
+      name  = "persistence.aria2-media.dataSource.name"
+      value = kubernetes_persistent_volume_claim.main-storage.metadata[0].name
+    }
+  ]
 }
 
 resource "helm_release" "sftpgo" {
@@ -317,23 +317,24 @@ resource "helm_release" "sftpgo" {
   chart   = "oci://tccr.io/truecharts/sftpgo"
   version = "8.2.0"
 
-  set {
-    name  = "workload.main.replicas"
-    value = 1
-  }
-  set {
-    name  = "persistence.media.existingClaim"
-    value = kubernetes_persistent_volume_claim.main-storage.metadata[0].name
-  }
-
-  set {
-    name  = "persistence.media.dataSource.name"
-    value = kubernetes_persistent_volume_claim.main-storage.metadata[0].name
-  }
-
   values     = ["${file("./values/sftpgo/values.yaml")}"]
   namespace  = kubernetes_namespace.agnes-apps.metadata[0].name
   depends_on = [kubernetes_namespace.agnes-apps, kubernetes_persistent_volume_claim.main-storage]
+
+  set = [
+    {
+      name  = "workload.main.replicas"
+      value = "1"
+    },
+    {
+      name  = "persistence.media.existingClaim"
+      value = kubernetes_persistent_volume_claim.main-storage.metadata[0].name
+    },
+    {
+      name  = "persistence.media.dataSource.name"
+      value = kubernetes_persistent_volume_claim.main-storage.metadata[0].name
+    }
+  ]
 }
 
 # resource "helm_release" "webdav" {
@@ -357,9 +358,9 @@ resource "helm_release" "sftpgo" {
 #   depends_on = [kubernetes_namespace.agnes-apps, kubernetes_persistent_volume_claim.main-storage]
 # }
 resource "helm_release" "actualserver" {
-  name       = "actualserver"
-  chart      = "oci://tccr.io/truecharts/actualserver"
-  version    = "13.5.0"
+  name    = "actualserver"
+  chart   = "oci://tccr.io/truecharts/actualserver"
+  version = "13.5.0"
 
   values     = ["${file("./values/actualserver/values.yaml")}"]
   namespace  = kubernetes_namespace.agnes-apps.metadata[0].name
